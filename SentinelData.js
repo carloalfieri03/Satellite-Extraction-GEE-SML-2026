@@ -1,5 +1,5 @@
 // radius
-var radius = 30; 
+var radius = 50; 
 var bufferedTable = table.map(function(feature) {
   return feature.buffer(radius);
 });
@@ -124,21 +124,21 @@ Map.addLayer(dem.clip(aoi), {min:0, max:300, palette:['blue','green','yellow','b
 var Hillshade= ee.Terrain.hillshade(dem);
 
 // albedo
-
+ 
 var albedo = sentinelimage.expression(
-'((0.356 * B2) + (0.130 * B4) + (0.373 * B5) + (0.085 * B6) + (0.072 * B7) - 0.0018) / 1.016',
+    '((0.356 * B2) + (0.130 * B4) + (0.373 * B8) + (0.085 * B11) + (0.072 * B12) - 0.0018) / 1.016',
     {
-      'B2':  sentinelimage.select('B2'),  // Blue (10m)
-      'B4':  sentinelimage.select('B4'),  // Red (10m)
-      'B8':  sentinelimage.select('B8'),  // NIR (10m)
-      'B11': sentinelimage.select('B11'), // SWIR 1 (20m -> auto-scaled to 10m on export)
-      'B12': sentinelimage.select('B12')  // SWIR 2 (20m -> auto-scaled to 10m on export)
+      'B2':  sentinelimage.select('B2'),  // Blue (
+      'B4':  sentinelimage.select('B4'),  // Red 
+      'B8':  sentinelimage.select('B8'),  // NIR 
+      'B11': sentinelimage.select('B11'), // SWIR 1 
+      'B12': sentinelimage.select('B12')  // SWIR 2 
     }
   )
   .clamp(0, 1)        
   .rename('Albedo')
   .toFloat();
-
+  
 // LST 
 
 //function to do additional filtering and resampling at 10m with bilinear sampling.
@@ -184,7 +184,7 @@ var extractedData = finalStack.reduceRegions({
 
 Export.table.toDrive({
   collection: extractedData,
-  description: 'Rome_trainingSentinel_30radius_CSV',
+  description: 'Rome_trainingSentinel_50radius_CSV',
   folder: 'GEE_Exports_10m', 
   fileFormat: 'CSV'
 });
@@ -195,7 +195,7 @@ Export.table.toDrive({
 //  Spectral Indices 
 Export.image.toDrive({
   image: ee.Image([ndvi, savi, ndwi, ndbi]).toFloat(),
-  description: 'S2_Spectral_Indices_30rad',
+  description: 'S2_Spectral_Indices_50rad',
   folder: 'GEE_Exports_10m',
   region: aoi,
   scale: 10,
@@ -205,7 +205,7 @@ Export.image.toDrive({
 //  Topography 
 Export.image.toDrive({
   image: ee.Image([dem, slope, aspect, tpi]).toFloat(),
-  description: 'Topography_30rad',
+  description: 'Topography_50rad',
   folder: 'GEE_Exports_10m',
   region: aoi,
   scale: 10,
@@ -216,7 +216,7 @@ Export.image.toDrive({
 
 Export.image.toDrive({
   image: ee.Image([vegfrac, buildfrac, distWater]).toFloat(),
-  description: 'LandCover_Metrics_30rad',
+  description: 'LandCover_Metrics_50rad',
   folder: 'GEE_Exports_10m',
   region: aoi,
   scale: 10,
@@ -228,7 +228,7 @@ Export.image.toDrive({
 
 Export.image.toDrive({
   image: lst10m.toFloat(),
-  description: 'LST_10m_30rad',
+  description: 'LST_10m_50rad',
   folder: 'GEE_Exports_10m',
   region: aoi,
   scale: 10,
